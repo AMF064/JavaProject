@@ -5,7 +5,7 @@ class Juego {
   public static Scanner in = new Scanner(System.in);
 
   public static int[] scanMov(){
-    int x = 0, y = 0, nX = 0, nY = 0, xLen, yLen;
+    int x = 0, y = 0, nX = 0, nY = 0;
     //Regexp
     Pattern pat = Pattern.compile("[(][1-8],[1-8][)][(][1-8],[1-8][)]"); //Regex input pattern
     //Input
@@ -26,8 +26,6 @@ class Juego {
           y = Integer.parseInt(s.substring(s.indexOf(",") + 1, s.indexOf(")")));
           nX = Integer.parseInt(s.substring(s.lastIndexOf("(") + 1, s.lastIndexOf(",")));
           nY = Integer.parseInt(s.substring(s.lastIndexOf(",") + 1, s.lastIndexOf(")")));
-          xLen = nX - x;
-          yLen = (int) Math.abs(nY - y);
           if(x > 8 || y > 8 || x < 1 || y < 1){
             System.out.println("Error: fuera del tablero. Volver a introducir:");
             valid = false;
