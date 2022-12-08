@@ -4,92 +4,172 @@ class Juego {
   public static char[][] grid = new char[8][8];
   public static Scanner in = new Scanner(System.in);
 
-  public static int[] scanMov(){
-    int x = 0, y = 0, nX = 0, nY = 0;
+  
+  public static int[] convertStringtoNum(String s){     //Devuelve array con coordenadas
+    s = s.replace("(", "");
+    s = s.replace(")", "");
+    s = s.replace(",", "");
+    int len = s.length();                     //Longitud del array después de quitar los caracteres
+    int[] nums = new int[len];
+    for(int i = 0; i < len; i++)
+      nums[i] = Integer.parseInt(s.substring(i, i + 1));  //Un solo número
+    return nums;
+  }
+
+  public static boolean validateCoordinates(int[] a){           //Validar coordenadas para comer
+    int len = a.length;                                 //Útil
+    for(int i = 1; i < len/2; i++){
+      int x = a[2*i-2], y = a[2*i-1], nextX = a[2*i], nextY = a[2*i+1];       //Útil
+      int xLenB = (grid[a[0]-1][a[1]-1] == 'b' ? nextX - x: (int) Math.abs(nextX - x));   //Por si es o no dama (blancas)
+      int xLenN = (grid[a[0]-1][a[1]-1] == 'n' ? x - nextX : (int) Math.abs(nextX - x));   //Por si es o no dama (negras)
+      int yLen = (int) Math.abs(nextY - y);   //Valor absoluto para izquierda y derecha
+      char between = grid[((x+nextX)/2)-1][((y+nextY)/2)-1];    //El número en medio de a y b es (a + b)/2
+      if(grid[a[0]-1][a[1]-1] == 'b' || grid[a[0]-1][a[1]-1] == 'B'){         //Para piezas blancas
+        if(xLenB != 2 || yLen != 2){            //Saltos de 2 casillas
+          if(grid[a[0]-1][a[1]-1] == 'b' && (xLenB != 1 || yLen != 1))
+            return false;
+          else if(grid[a[0]-1][a[1]-1] == 'b' && (xLenB == 1 || yLen == 1))
+            return true;
+          else if(grid[a[0]-1][a[1]-1] == 'B')
+            return false;
+        }
+        if(between != 'n' && between != 'N')
+          return false;
+      }
+      else{                                                    //Para piezas negras
+        if(xLenN != 2 || yLen != 2){            //Saltos de 2 casillas
+          if(grid[a[0]-1][a[1]-1] == 'n' && (xLenN != -1 || yLen != 1))
+            return false;
+          else if(grid[a[0]-1][a[1]-1] == 'n' && (xLenN == 1 || yLen == 1))
+            return true;
+          else if(grid[a[0]-1][a[1]-1] == 'N')
+            return false;
+        }
+        if(between != 'b' && between != 'B')
+          return false;
+      }
+    }
+    return true;
+  }
+
+  public static void Eat(int[] mov){
+    int len = mov.length;
+    for(int i = 1; i < len/2; i++){
+      int x = mov[2*i-2], y = mov[2*i-1], nextX = mov[2*i], nextY = mov[2*i+1];       //Útil
+      grid[((x+nextX)/2)-1][((y+nextY)/2)-1] = '·';    //El número en medio de a y b es (a + b)/2
+    }
+  }
+
+  public static int[] scanMov(){      //Registrar movimiento introducido por teclado
+    int x = 0, y = 0;   //Coordenadas
     //Regexp
-    Pattern pat = Pattern.compile("[(][1-8],[1-8][)][(][1-8],[1-8][)]"); //Regex input pattern
+    Pattern pat = Pattern.compile("([(][1-8],[1-8][)]){2,12}"); //Patrón regex
     //Input
     String s = new String();
-    boolean valid;                  //Conditional for exiting the loop
+    boolean valid;                  //Para salir del bucle
     do{
-        valid = true;
-        s = in.nextLine();
-        s = s.replace(" ", "");                 //Remove whitespace
-        Matcher match = pat.matcher(s);
-        boolean found = match.matches();
-        if(found == false){
-          System.out.println("Input no válido. Formato: ([1-8],[1-8])([1-8],[1-8])");
+      valid = true;
+      s = in.nextLine();
+      s = s.replace(" ", "");                 //Quitar espacios
+      Matcher match = pat.matcher(s);                             //Buscar coincidencia
+      boolean found = match.matches();
+      if(!found){                             //Ver si coincide
+        System.out.println("Input no válido. Formato: ([1-8],[1-8])([1-8],[1-8])");
+        valid = false;
+      }
+      else {                    //Asignar coordenadas y hacer comprobación de base
+        int[] pos = convertStringtoNum(s);
+        x = pos[0]; y = pos[1];
+        if(x > 8 || y > 8 || x < 1 || y < 1){
+          System.out.println("Error: fuera del tablero. Volver a introducir:");
           valid = false;
         }
-        else {
-          x = Integer.parseInt(s.substring(s.indexOf("(") + 1, s.indexOf(",")));
-          y = Integer.parseInt(s.substring(s.indexOf(",") + 1, s.indexOf(")")));
-          nX = Integer.parseInt(s.substring(s.lastIndexOf("(") + 1, s.lastIndexOf(",")));
-          nY = Integer.parseInt(s.substring(s.lastIndexOf(",") + 1, s.lastIndexOf(")")));
-          if(x > 8 || y > 8 || x < 1 || y < 1){
-            System.out.println("Error: fuera del tablero. Volver a introducir:");
-            valid = false;
-          }
-        }
+      }
     } while(!valid);
-    int[] out = {x, y, nX, nY};
+    int[] out = convertStringtoNum(s);        //Hacer lo mismo con el string válido para sacarlo
     return out;
   }
 
   public static void movWhite(){
     System.out.println("\nBlancas mueven: ");
-    int[] mov = new int[4];
-    int x, y, nX, nY;
-    boolean legal;                    //Boolean for exiting the loop
+    int x, y, nX, nY, xLen, yLen;
+    boolean legal;                    //Para salir del bucle
+    int[] mov;
     do{
       legal = true;
-      mov = scanMov();                //Allocate the values of scanMov in an array
-      x = mov[0]; y = mov[1]; nX = mov[2]; nY = mov[3];     //In order to make things easier
-      int yLen = (int) Math.abs(nY - y), xLen = nX - x;     //Helper variables
-      if(grid[x - 1][y - 1] != 'b' && grid[x - 1][y - 1] != 'B'){   //If there is no white piece
+      mov = scanMov();          //Introducir movimiento por teclado
+      int len = mov.length;           //Longitud
+      x = mov[0]; y = mov[1]; nX = mov[len - 2]; nY = mov[len - 1];     //Más fácil con variables
+      yLen = (int) Math.abs(nY - y); xLen = nX - x;     //Helper variables
+      if(grid[x - 1][y - 1] != 'b' && grid[x - 1][y - 1] != 'B'){   //Si no hay pieza blanca
         System.out.println("No hay pieza blanca en la casilla seleccionada. Volver a introducir: ");
         legal = false;
       }
-      if(grid[x - 1][y - 1] == 'b' && (yLen != 1 || xLen != 1)){
-        System.out.println("Movimiento ilegal. Volver a introducir:");
-        legal = false;
-      }
-      if(grid[nX - 1][nY - 1] == 'n' || grid[nX - 1][nY - 1] == 'N' ||
-       grid[nX - 1][nY - 1] == 'b' || grid[nX - 1][nY - 1] == 'B'){   //If there is a black piece in the final position
+      //else if(grid[x - 1][y - 1] == 'b' && (yLen != 1 || xLen != 1)){      //Movimiento ilegal para peones
+        //System.out.println("Movimiento ilegal. Volver a introducir:");
+        //legal = false;
+      //}
+      else if(grid[nX - 1][nY - 1] == 'n' || grid[nX - 1][nY - 1] == 'N' ||
+       grid[nX - 1][nY - 1] == 'b' || grid[nX - 1][nY - 1] == 'B'){   //Si hay pieza en la casilla final
         System.out.println("Movimiento ilegal: pieza en el camino. Volver a introducir: ");
         legal = false;
+      }
+      //else if(len == 4)                        //Movimientos normales
+        //if(xLen != 1 && yLen != 1){
+          //System.out.println("Movimiento ilegal. Volver a introducir");
+          //legal = false;
+        //}
+      else if(xLen != 1 || yLen != 1){                              //Comer
+        legal = validateCoordinates(mov);
+        if(!legal)
+          System.out.println("Movimiento ilegal. Volver a introducir: ");
       }
     } while(!legal);
     grid[x - 1][y - 1] = '·';
     grid[nX - 1][nY - 1] = 'b';
+    if(xLen != 1 && yLen != 1)
+      Eat(mov);
   }
 
   public static void movBlack(){
     System.out.println("\nNegras mueven: ");
-    int[] mov = new int[4];
-    int x, y, nX, nY;
-    boolean legal;                    //Boolean for exiting the loop
+    int x, y, nX, nY, xLen, yLen;
+    boolean legal;                    //Para salir del bucle
+    int[] mov;
     do{
       legal = true;
-      mov = scanMov();                //Allocate the values of scanMov in an array
-      x = mov[0]; y = mov[1]; nX = mov[2]; nY = mov[3];     //In order to make things easier
-      int yLen = (int) Math.abs(nY - y), xLen = nX - x;     //Helper variables
-      if(grid[x - 1][y - 1] != 'n' && grid[x - 1][y - 1] != 'N'){   //If there is no white piece
+      mov = scanMov();                //Movimiento introducido por teclado
+      int len = mov.length;
+      x = mov[0]; y = mov[1]; nX = mov[len - 2]; nY = mov[len - 1];     //Más fácil con variables
+      yLen = (int) Math.abs(nY - y); xLen = x - nX;     //Helper variables
+      if(grid[x - 1][y - 1] != 'n' && grid[x - 1][y - 1] != 'N'){   //Si no hay pieza negra
         System.out.println("No hay pieza negra en la casilla seleccionada. Volver a introducir: ");
         legal = false;
       }
-      if(grid[x - 1][y - 1] == 'n' && (yLen != 1 || xLen != -1)){           //Illegal move for pawns only
-        System.out.println("Movimiento ilegal. Volver a introducir:");
-        legal = false;
-      }
-      if(grid[nX - 1][nY - 1] == 'n' || grid[nX - 1][nY - 1] == 'N' ||
-       grid[nX - 1][nY - 1] == 'b' || grid[nX - 1][nY - 1] == 'B'){   //If there is a black piece in the final position
+      //else if(grid[x - 1][y - 1] == 'n' && (yLen != 1 || xLen != -1)){           //Movimiento ilegal para peones
+        //System.out.println("Movimiento ilegal. Volver a introducir:");
+        //legal = false;
+      //}
+      else if(grid[nX - 1][nY - 1] == 'n' || grid[nX - 1][nY - 1] == 'N' ||
+       grid[nX - 1][nY - 1] == 'b' || grid[nX - 1][nY - 1] == 'B'){   //Si hay pieza en la casilla final
         System.out.println("Movimiento ilegal: pieza en el camino. Volver a introducir: ");
         legal = false;
+      }
+      //else if(len == 4)                        //Movimientos normales
+        //if(xLen != 1 && yLen != 1){
+          //System.out.println("Movimiento ilegal. Volver a introducir");
+          //legal = false;
+        //}
+      else if(xLen != 1 || yLen != 1){
+        legal = validateCoordinates(mov);
+        if(!legal)
+          System.out.println("Movimiento ilegal. Volver a introducir: ");
       }
     } while(!legal);
     grid[x - 1][y - 1] = '·';
     grid[nX - 1][nY - 1] = 'n';
+    if(xLen != 1 && yLen != 1)
+      Eat(mov);
   }
   
   public static void genGrid(){
@@ -124,7 +204,7 @@ class Juego {
     for(int i = 0; i < 8; i++){
       System.out.printf("%d ", 8 - i);
       for(int j = 0; j < 8; j++){
-        System.out.print(grid[8 - i - 1][j] + " ");   //For printing from bottom to top
+        System.out.print(grid[8 - i - 1][j] + " ");   //Imprimir de abajo hacia arriba
       }
       System.out.println();
     }
