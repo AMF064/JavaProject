@@ -1,10 +1,20 @@
 import java.util.Scanner;
 import java.util.regex.*;
 class Juego {
-  public static char[][] grid = new char[8][8];
-  public static Scanner in = new Scanner(System.in);
+  public static char[][] grid = new char[8][8];                 //Tablero público
+  public static Scanner in = new Scanner(System.in);            //Escáner
 
   public static int winner(){
+    boolean noBlackMoves, noWhiteMoves;
+    String firstRow = grid[0].toString();
+    String lastRow = grid[7].toString();
+    String mediumRows = new String();
+    for(int i = 1; i < 7; i++)
+      mediumRows += grid[i].toString();
+    noBlackMoves = (firstRow.indexOf('n') != -1 && mediumRows.indexOf('n') == -1 && mediumRows.indexOf('b') == -1 && lastRow.indexOf('n') == -1);
+    noWhiteMoves = (lastRow.indexOf('b') != -1 && mediumRows.indexOf('n') == -1 && mediumRows.indexOf('b') == -1 && firstRow.indexOf('b') == -1);
+    if(noBlackMoves && noWhiteMoves)
+      return 3;
     for(int i = 0; i < 8; i++)
       for(char j : grid[i]){
         if(j == 'n' || j == 'N')
@@ -235,6 +245,8 @@ class Juego {
       System.out.println("Ganan blancas.");
     if(winner() == 2)
       System.out.println("Ganan negras");
+    if(winner() == 3)
+      System.out.println("La partida es tablas");
   }
   public static void main(String[] args) {
     System.out.println("¡Bienvenido! Elija el modo en el que quiere jugar:");
@@ -257,7 +269,9 @@ class Juego {
             stop = false;
         }
       }while(!stop);
+      boolean choice;
       do{
+        choice = true;
         System.out.println("¡Gracias por jugar!¿Desea comenzar otra partida? (S/n)");
         String choice1 = in.nextLine();
         choice1 = choice1.substring(0,1);   //Para reducir casos en el switch
@@ -266,16 +280,18 @@ class Juego {
           case "S":
           case"s":
             stop = false;
+            choice = true;
             break;
           case "n":
           case "N":
             stop = true;
+            choice = true;
             break;
           default:
             System.out.println("Lo siento, vuelva a introducir su elección: ");
-            stop = false;
+            choice = false;
         }
-      }while(!stop);
+      }while(!choice);
     }while(!stop);
   }
 }
