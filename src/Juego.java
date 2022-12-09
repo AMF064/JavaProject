@@ -7,25 +7,34 @@ class Juego {
   public static int winner(){
     /* Esta primera parte es para el modo básico */
     boolean noBlackMoves, noWhiteMoves;
-    String firstRow = grid[0].toString();
-    String lastRow = grid[7].toString();
+    String firstRow = String.valueOf(grid[0]);
+    String lastRow = String.valueOf(grid[7]);
     String mediumRows = new String();
-    String board = grid.toString();
+    String board = String.valueOf(grid);
     for(int i = 1; i < 7; i++)
-      mediumRows += grid[i].toString();
+      mediumRows += String.valueOf(grid[i]);
     //Casos de tablas: sin movimientos posibles, y sin damas (por eso es el modo básico).
     noBlackMoves = (firstRow.indexOf('n') != -1 && mediumRows.indexOf('n') == -1 && mediumRows.indexOf('b') == -1 && lastRow.indexOf('n') == -1 && board.indexOf('N') == -1);
     noWhiteMoves = (lastRow.indexOf('b') != -1 && mediumRows.indexOf('n') == -1 && mediumRows.indexOf('b') == -1 && firstRow.indexOf('b') == -1 && board.indexOf('B') == -1);
     if(noBlackMoves && noWhiteMoves)
       return 3;
     /* Para el resto de modos */
-    for(int i = 0; i < 8; i++)
+    boolean noWhitePieces = true, noBlackPieces = true;
+    for(int i = 0; i < 8; i++)      //Buscar piezas
       for(char j : grid[i]){
-        if(j == 'n' || j == 'N')
-          return 2;
-        if(j == 'b' || j == 'B')
-          return 1;
+        if(j == 'n' || j == 'N'){
+          noBlackPieces = false;
+          return 0;
+        }
+        if(j == 'b' || j == 'B'){
+          noWhitePieces = false;
+          return 0;
+        }
       }
+    if(noWhitePieces)
+      return 1;
+    if(noBlackPieces)
+      return 2;
     return 0;
   }
   
