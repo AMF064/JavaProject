@@ -5,16 +5,20 @@ class Juego {
   public static Scanner in = new Scanner(System.in);            //Escáner
 
   public static int winner(){
+    /* Esta primera parte es para el modo básico */
     boolean noBlackMoves, noWhiteMoves;
     String firstRow = grid[0].toString();
     String lastRow = grid[7].toString();
     String mediumRows = new String();
+    String board = grid.toString();
     for(int i = 1; i < 7; i++)
       mediumRows += grid[i].toString();
-    noBlackMoves = (firstRow.indexOf('n') != -1 && mediumRows.indexOf('n') == -1 && mediumRows.indexOf('b') == -1 && lastRow.indexOf('n') == -1);
-    noWhiteMoves = (lastRow.indexOf('b') != -1 && mediumRows.indexOf('n') == -1 && mediumRows.indexOf('b') == -1 && firstRow.indexOf('b') == -1);
+    //Casos de tablas: sin movimientos posibles, y sin damas (por eso es el modo básico).
+    noBlackMoves = (firstRow.indexOf('n') != -1 && mediumRows.indexOf('n') == -1 && mediumRows.indexOf('b') == -1 && lastRow.indexOf('n') == -1 && board.indexOf('N') == -1);
+    noWhiteMoves = (lastRow.indexOf('b') != -1 && mediumRows.indexOf('n') == -1 && mediumRows.indexOf('b') == -1 && firstRow.indexOf('b') == -1 && board.indexOf('B') == -1);
     if(noBlackMoves && noWhiteMoves)
       return 3;
+    /* Para el resto de modos */
     for(int i = 0; i < 8; i++)
       for(char j : grid[i]){
         if(j == 'n' || j == 'N')
