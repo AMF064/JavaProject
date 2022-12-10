@@ -64,7 +64,7 @@ class Juego {
           else if(grid[a[0]-1][a[1]-1] == 'b' && (xLenB == 1 || yLen == 1))
             return true;
           else if(grid[a[0]-1][a[1]-1] == 'B')
-            return false;
+            return true;
         }
         if(between != 'n' && between != 'N')
           return false;
@@ -76,7 +76,7 @@ class Juego {
           else if(grid[a[0]-1][a[1]-1] == 'n' && (xLenN == 1 || yLen == 1))
             return true;
           else if(grid[a[0]-1][a[1]-1] == 'N')
-            return false;
+            return true;
         }
         if(between != 'b' && between != 'B')
           return false;
@@ -161,7 +161,7 @@ class Juego {
       }
     } while(!legal);
     grid[x - 1][y - 1] = '·';
-    grid[nX - 1][nY - 1] = 'b';
+    grid[nX - 1][nY - 1] = (grid[x-1][y-1] == 'b' ? 'b' : 'B');
     if(xLen != 1 && yLen != 1)
       Eat(mov);
   }
@@ -204,7 +204,7 @@ class Juego {
       }
     } while(!legal);
     grid[x - 1][y - 1] = '·';
-    grid[nX - 1][nY - 1] = 'n';
+    grid[nX - 1][nY - 1] = (grid[x-1][y-1] == 'n' ? 'n' : 'N');
     if(xLen != 1 && yLen != 1)
       Eat(mov);
   }
@@ -266,6 +266,28 @@ class Juego {
     else if(win == 3)
       System.out.println("\nLa partida es tablas");
   }
+  public static void intermediate(){
+    genGrid();
+    while(winner() == 0){
+      printBoard();
+      movWhite();
+      String lastRow = String.valueOf(grid[7]);
+      if(lastRow.indexOf('b') != -1)              //Coronar pieza blanca
+        grid[7][lastRow.indexOf('b')] = 'B';
+      printBoard();
+      movBlack();
+      String firstRow = String.valueOf(grid[0]);
+      if(firstRow.indexOf('n') != -1)             //Coronar pieza negra
+        grid[0][firstRow.indexOf('n')] = 'N';
+    }
+    int win = winner();
+    if(win == 1)
+      System.out.println("\nGanan blancas.");
+    else if(win == 2)
+      System.out.println("\nGanan negras");
+    else if(win == 3)
+      System.out.println("\nLa partida es tablas");
+  }
   public static void main(String[] args) {
     System.out.println("¡Bienvenido! Elija el modo en el que quiere jugar:");
     System.out.println("Básico(1)\tIntermedio(2)\tAvanzado(3)");
@@ -279,6 +301,7 @@ class Juego {
             basic();
             break;
           case "2":
+            intermediate();
             break;
           case "3":
             break;
