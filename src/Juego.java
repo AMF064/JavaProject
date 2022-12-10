@@ -10,7 +10,9 @@ class Juego {
     String firstRow = String.valueOf(grid[0]);
     String lastRow = String.valueOf(grid[7]);
     String mediumRows = new String();
-    String board = String.valueOf(grid);
+    String board = new String();
+    for(int i = 0; i < 8; i++)
+      board+= String.valueOf(grid[i]);
     for(int i = 1; i < 7; i++)
       mediumRows += String.valueOf(grid[i]);
     //Casos de tablas: sin movimientos posibles, y sin damas (por eso es el modo básico).
