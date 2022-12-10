@@ -24,15 +24,13 @@ class Juego {
     boolean noWhitePieces = true, noBlackPieces = true;
     for(int i = 0; i < 8; i++)      //Buscar piezas
       for(char j : grid[i]){
-        if(j == 'n' || j == 'N'){
+        if(j == 'n' || j == 'N')
           noBlackPieces = false;
-          return 0;
-        }
-        if(j == 'b' || j == 'B'){
+        if(j == 'b' || j == 'B')
           noWhitePieces = false;
-          return 0;
-        }
       }
+    if(!noWhitePieces && !noBlackPieces)
+      return 0;
     if(noWhitePieces)
       return 1;
     if(noBlackPieces)
@@ -126,6 +124,8 @@ class Juego {
   }
 
   public static void movWhite(){
+    if(winner() != 0)
+      return;
     System.out.println("\nBlancas mueven: ");
     int x, y, nX, nY, xLen, yLen;
     boolean legal;                    //Para salir del bucle
@@ -167,6 +167,8 @@ class Juego {
   }
 
   public static void movBlack(){
+    if(winner() != 0)
+      return;
     System.out.println("\nNegras mueven: ");
     int x, y, nX, nY, xLen, yLen;
     boolean legal;                    //Para salir del bucle
@@ -256,12 +258,13 @@ class Juego {
       printBoard();
       movBlack();
     }
-    if(winner() == 1)
-      System.out.println("Ganan blancas.");
-    if(winner() == 2)
-      System.out.println("Ganan negras");
-    if(winner() == 3)
-      System.out.println("La partida es tablas");
+    int win = winner();
+    if(win == 1)
+      System.out.println("\nGanan blancas.");
+    else if(win == 2)
+      System.out.println("\nGanan negras");
+    else if(win == 3)
+      System.out.println("\nLa partida es tablas");
   }
   public static void main(String[] args) {
     System.out.println("¡Bienvenido! Elija el modo en el que quiere jugar:");
