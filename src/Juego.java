@@ -3,6 +3,88 @@ import java.util.regex.*;
 class Juego {
   public static char[][] grid = new char[8][8];                 //Tablero público
   public static Scanner in = new Scanner(System.in);            //Escáner
+  public static int[] blowMove;                                 //Secuencia de movimientos solo para el modo avanzado
+  public static char[][] oldGrid = new char[8][8];              //Tablero del movimiento anterior. Modo avanzado.
+  public static String eatMove = new String();                                 //String para crear el movimiento para soplar
+
+  public static void checkForMore(int player, int[] position){
+    String possibleEat= (player == 1 ? "·n" : "·b");
+    int x = position[0], y = position[1];
+    if(0 < x + 2 && x + 2 < 7 && 0 < y + 2 && y + 2 < 7){
+      char[] left = {oldGrid[x+2][y-2], oldGrid[x+1][y-1]};
+      char[] right = {oldGrid[x+2][y+2], oldGrid[x+1][y+1]};
+      String checkForFoodLeft = String.valueOf(left);   //Diagonal de 3 piezas hacia la izquierda
+      String checkForFoodRight = String.valueOf(right);  //Diagonal de 3 piezas hacia la derecha
+      boolean matchLeft = checkForFoodLeft.equals(possibleEat);
+      boolean matchRight = checkForFoodRight.equals(possibleEat);
+      if(matchLeft){
+        int newX = x+2, newY = y-2;
+        int[] newPosition = {newX, newY};                //Buscar en la posición 2 escaques en diagonal a la izquierda
+        int newXToString = newX+1, newYToString = newY+1;   //Hay que sumar 1 para comparar con el movimiento
+        eatMove += newXToString + "" + newYToString;
+        checkForMore(player, newPosition);       
+      }
+      if(matchRight){
+        int newX = x+2, newY = y+2;
+        int[] newPosition = {newX, newY};                 //Buscar en la posición 2 escaques en diagonal a la derecha
+        int newXToString = newX+1, newYToString = newY+1;   //Hay que sumar 1 para comparar con el movimiento
+        eatMove += newXToString + "" + newYToString;
+        checkForMore(player, newPosition);
+      }
+    }
+  }
+
+  public static void blow(int player, int[] move){          //Blancas llaman con player = 1, negras llaman con player = 2
+    eatMove = "";                                           //Reiniciar la string de comparación
+    int len1 = move.length;
+    int lowerLimit = (player == 1 ? 0 : 2);                 //Distintos límites de búsqueda para cada jugador
+    int upperLimit = (player == 1 ? 5 : 7);
+    String possibleEat= (player == 1 ? "·nb" : "·bn");       //Strings de búsqueda de patrón para comer
+    int[] bestMove;
+    int initialX, initialY = 0, thereIsX = 0, thereIsY = 0;
+    boolean thereIsMove = false;
+    for(initialX = lowerLimit; initialX < upperLimit; initialX++)
+      for(initialY = 2; initialY < 5; initialY++){          //Se mira hasta 2 columnas más a los lados, bucle solo hasta 5
+        int nextX2 = (player == 1 ? initialX + 2 : initialX - 2), nextX1 = (player == 1 ? initialX + 1 : initialX - 1);
+        //Distintos arrays de búsqueda para cada jugador
+        char[] left = {oldGrid[nextX2][initialY-2], oldGrid[nextX1][initialY-1], oldGrid[initialX][initialY]};
+        char[] right = {oldGrid[nextX2][initialY+2], oldGrid[nextX1][initialY+1], oldGrid[initialX][initialY]};
+        String checkForFoodLeft = String.valueOf(left);   //Diagonal de 3 piezas hacia la izquierda
+        String checkForFoodRight = String.valueOf(right);  //Diagonal de 3 piezas hacia la derecha
+        boolean matchLeft = checkForFoodLeft.equals(possibleEat);
+        boolean matchRight = checkForFoodRight.equals(possibleEat);
+        if(matchLeft || matchRight){
+          thereIsMove = true;
+          thereIsX = initialX; thereIsY = initialY;
+          break;
+        }
+        if(thereIsMove)                                     //Hace las cosas más rápidas
+          break;
+      }
+    int[] initialPosition = {thereIsX, thereIsY};
+    int thereIsXToString = thereIsX+1, thereIsYToString = thereIsY+1;
+    eatMove += thereIsXToString + "" + thereIsYToString;              //El array del movimiento también tiene las coordenadas sumadas
+    if(thereIsMove){
+      checkForMore(player, initialPosition);
+      bestMove = convertStringtoNum(eatMove);
+    }
+    else
+      bestMove = move;
+    int len2 = bestMove.length;
+    if(len1 > len2)                                 //Si es más largo el movimiento que hemos hecho, no hay soplo.
+      return;
+    else if(len1 < len2){                           //Si es más largo el otro movimiento, debe haber soplo.
+      System.out.println("\n¡SOPLO! la pieza ha sido soplada.");
+      grid[move[len1 - 2] - 1][move[len1 - 1] - 1] = '·';
+      return;
+    }
+    for(int i = 0; i < len1; i++)
+      if(move[i] != bestMove[i]){
+        System.out.println("\n¡SOPLO! la pieza ha sido soplada.");
+        grid[move[len1 - 2] - 1][move[len1 - 1] - 1] = '·';
+        break;
+      }
+  }
 
   public static int winner(){
     /* Esta primera parte es para el modo básico */
@@ -32,9 +114,9 @@ class Juego {
     if(!noWhitePieces && !noBlackPieces)
       return 0;
     if(noWhitePieces)
-      return 1;
-    if(noBlackPieces)
       return 2;
+    if(noBlackPieces)
+      return 1;
     return 0;
   }
   
@@ -61,8 +143,8 @@ class Juego {
         if(xLenB != 2 || yLen != 2){            //Saltos de 2 casillas
           if(grid[a[0]-1][a[1]-1] == 'b' && (xLenB != 1 || yLen != 1))        //Movimiento ilegal de peón
             return false;
-          else if(grid[a[0]-1][a[1]-1] == 'b' && (xLenB == 1 || yLen == 1))   //Movimiento legal de peón
-            return true;
+          //else if(grid[a[0]-1][a[1]-1] == 'b' && (xLenB == 1 || yLen == 1))   //Movimiento legal de peón
+            //return true;
           else if(grid[a[0]-1][a[1]-1] == 'B')                                //Movimiento legal de dama
             return true;
         }
@@ -164,6 +246,7 @@ class Juego {
     grid[x - 1][y - 1] = '·';
     if(xLen != 1 && yLen != 1)
       Eat(mov);
+    blowMove = mov;
   }
 
   public static void movBlack(){
@@ -207,6 +290,7 @@ class Juego {
     grid[x - 1][y - 1] = '·';
     if(xLen != 1 && yLen != 1)
       Eat(mov);
+    blowMove = mov;
   }
   
   public static void genGrid(){
@@ -249,6 +333,12 @@ class Juego {
     for(int i = 1; i < 9; i++)
       System.out.printf("%d ", i);
   }
+
+  public static void updateOldGrid(){
+    for(int i = 0; i < 8; i++)
+      for(int j = 0; j < 8; j++)
+        oldGrid[i][j] = grid[i][j];
+  }
   
   public static void basic(){
     genGrid();
@@ -288,6 +378,40 @@ class Juego {
     else if(win == 3)
       System.out.println("\nLa partida es tablas");
   }
+
+  public static void advanced(){
+    //genGrid();
+    for(int i = 0; i < 8; i++)
+      for(int j = 0; j < 8; j++)
+        grid[i][j] = '·';
+    grid[1][1] = 'b';
+    grid[3][3] = 'n';
+    grid[6][2] = 'n';
+    while(winner() == 0){
+      printBoard();
+      updateOldGrid();
+      movWhite();
+      blow(1, blowMove);                      //Buscar soplos
+      String lastRow = String.valueOf(grid[7]);
+      if(lastRow.indexOf('b') != -1)              //Coronar pieza blanca
+        grid[7][lastRow.indexOf('b')] = 'B';
+      printBoard();
+      updateOldGrid();
+      movBlack();
+      blow(2, blowMove);                      //Buscar soplos
+      String firstRow = String.valueOf(grid[0]);
+      if(firstRow.indexOf('n') != -1)             //Coronar pieza negra
+        grid[0][firstRow.indexOf('n')] = 'N';
+    }
+    int win = winner();
+    if(win == 1)
+      System.out.println("\nGanan blancas.");
+    else if(win == 2)
+      System.out.println("\nGanan negras");
+    else if(win == 3)
+      System.out.println("\nLa partida es tablas");
+  }
+
   public static void main(String[] args) {
     System.out.println("¡Bienvenido! Elija el modo en el que quiere jugar:");
     boolean stop;                   //Puede usarse solo una variable
@@ -304,6 +428,7 @@ class Juego {
             intermediate();
             break;
           case "3":
+            advanced();
             break;
           default:
             System.out.println("Lo siento, vuelva a introducir el modo: ");
