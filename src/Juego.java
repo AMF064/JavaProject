@@ -290,13 +290,13 @@ class Juego {
   }
   public static void main(String[] args) {
     System.out.println("¡Bienvenido! Elija el modo en el que quiere jugar:");
-    System.out.println("Básico(1)\tIntermedio(2)\tAvanzado(3)");
     boolean stop;                   //Puede usarse solo una variable
     do{
+    System.out.println("Básico(1)\tIntermedio(2)\tAvanzado(3)");
       do{
         stop = true;
-        String choice = in.nextLine();
-        switch (choice){
+        String gameMode = in.nextLine();
+        switch (gameMode){
           case "1":
             basic();
             break;
@@ -315,7 +315,8 @@ class Juego {
         choice = true;
         System.out.println("¡Gracias por jugar!¿Desea comenzar otra partida? (S/n)");
         String choice1 = in.nextLine();
-        choice1 = choice1.substring(0,1);   //Para reducir casos en el switch
+        choice1 = (choice1.equals("") ? choice1 : choice1.substring(0,1));   //Para reducir casos en el switch
+        //Con la expresión condicional se evita error IndexOutOfBounds
         switch (choice1){
           case "":
           case "S":
