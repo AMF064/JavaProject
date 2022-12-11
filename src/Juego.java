@@ -59,14 +59,14 @@ class Juego {
       char between = grid[((x+nextX)/2)-1][((y+nextY)/2)-1];    //El número en medio de a y b es (a + b)/2
       if(grid[a[0]-1][a[1]-1] == 'b' || grid[a[0]-1][a[1]-1] == 'B'){         //Para piezas blancas
         if(xLenB != 2 || yLen != 2){            //Saltos de 2 casillas
-          if(grid[a[0]-1][a[1]-1] == 'b' && (xLenB != 1 || yLen != 1))
+          if(grid[a[0]-1][a[1]-1] == 'b' && (xLenB != 1 || yLen != 1))        //Movimiento ilegal de peón
             return false;
-          else if(grid[a[0]-1][a[1]-1] == 'b' && (xLenB == 1 || yLen == 1))
+          else if(grid[a[0]-1][a[1]-1] == 'b' && (xLenB == 1 || yLen == 1))   //Movimiento legal de peón
             return true;
-          else if(grid[a[0]-1][a[1]-1] == 'B')
+          else if(grid[a[0]-1][a[1]-1] == 'B')                                //Movimiento legal de dama
             return true;
         }
-        if(between != 'n' && between != 'N')
+        if(between != 'n' && between != 'N')                                  //Movimientos de comer: deben comer pieza
           return false;
       }
       else{                                                    //Para piezas negras
@@ -160,8 +160,8 @@ class Juego {
           System.out.println("Movimiento ilegal. Volver a introducir: ");
       }
     } while(!legal);
-    grid[x - 1][y - 1] = '·';
     grid[nX - 1][nY - 1] = (grid[x-1][y-1] == 'b' ? 'b' : 'B');
+    grid[x - 1][y - 1] = '·';
     if(xLen != 1 && yLen != 1)
       Eat(mov);
   }
@@ -203,8 +203,8 @@ class Juego {
           System.out.println("Movimiento ilegal. Volver a introducir: ");
       }
     } while(!legal);
-    grid[x - 1][y - 1] = '·';
     grid[nX - 1][nY - 1] = (grid[x-1][y-1] == 'n' ? 'n' : 'N');
+    grid[x - 1][y - 1] = '·';
     if(xLen != 1 && yLen != 1)
       Eat(mov);
   }
