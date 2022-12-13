@@ -8,6 +8,7 @@ class Juego {
   public static String eatMove = new String();                                 //String para crear el movimiento para soplar
   public static int tieCount;
 
+  /* Función recursiva que busca más movimientos posibles para comer. Implementada en el modo avanzado. */
   public static void checkForMore(int player, int[] position){
     String possibleEat= (player == 1 ? "·n" : "·b");
     int x = position[0], y = position[1];
@@ -36,6 +37,7 @@ class Juego {
     }
   }
 
+  /* Función que empieza a buscar movimientos para comer. Implementada en el modo avanzado */
   public static void blow(int player, int[] move){          //Blancas llaman con player = 1, negras llaman con player = 2
     eatMove = "";                                           //Reiniciar la string de comparación
     int len1 = move.length;
@@ -88,6 +90,7 @@ class Juego {
       }
   }
 
+  /* Método que retorna un entero que es leído por los métodos de los modos, para saber si ha acabado la partida. */
   public static int winner(){
     /* Esta primera parte es para el modo básico */
     boolean noBlackMoves, noWhiteMoves;
@@ -124,6 +127,7 @@ class Juego {
     return 0;
   }
   
+  /* Método que sirve para convertir el string introducido por el jugador en un array de coordenadas */
   public static int[] convertStringtoNum(String s){     //Devuelve array con coordenadas
     s = s.replace("(", "");
     s = s.replace(")", "");
@@ -135,6 +139,9 @@ class Juego {
     return nums;
   }
 
+  /* Método que valida las coordenadas introducidas por el jugador,
+   * en los casos que no están controlados por los métodos de movimiento.
+   */
   public static boolean validateCoordinates(int[] a){           //Validar coordenadas para comer
     int len = a.length;                                 //Útil
     for(int i = 1; i < len/2; i++){
@@ -171,6 +178,9 @@ class Juego {
     return true;
   }
 
+  /* Método para comer la pieza o las piezas que el jugador quería comer.
+   * Está fuera de los otros métodos por legibilidad.
+   */
   public static void Eat(int[] mov){
     int len = mov.length;
     for(int i = 1; i < len/2; i++){
@@ -179,6 +189,10 @@ class Juego {
     }
   }
 
+  /* Método para escanear el movimiento que quiere hacer el jugador
+   * y para hacer comprobaciones básicas sobre la legalidad del movimento
+   * y su formato.
+   */
   public static int[] scanMov(){      //Registrar movimiento introducido por teclado
     int x = 0, y = 0;   //Coordenadas
     //Regexp
@@ -209,6 +223,9 @@ class Juego {
     return out;
   }
 
+  /* Método para el movimiento de las piezas blancas. Puede unirse con el método de las
+   * piezas negras en un único método para mover.
+   */
   public static void movWhite(){
     int localTieCount = 0;                   //Contador local para tablas
     int x, y, nX, nY, xLen, yLen;
@@ -246,6 +263,10 @@ class Juego {
     blowMove = mov;
   }
 
+  /* Método de movimiento de las piezas negras.
+   * Puede fusionarse con el método de las piezas blancas
+   * en un solo método.
+   */
   public static void movBlack(){
     int localTieCount = 0;            //Contador local para tablas
     int x, y, nX, nY, xLen, yLen;
@@ -283,6 +304,9 @@ class Juego {
     blowMove = mov;
   }
   
+  /* Método para rellenar el tablero.
+   * Rellena la variable pública grid.
+   */
   public static void genGrid(){
     for(int i = 0; i < 8; i++){
       for(int j = 0; j < 8; j++){
@@ -311,6 +335,9 @@ class Juego {
     }
   }
 
+  /* Método para imprimir el tablero
+   * en el formato deseado.
+   */
   public static void printBoard(){
     for(int i = 0; i < 8; i++){
       System.out.printf("%d ", 8 - i);
@@ -324,12 +351,17 @@ class Juego {
       System.out.printf("%d ", i);
   }
 
+  /* Método para actualizar la imagen del tablero
+   * antes del último movimiento.
+   * Para el modo avanzado únicamente.
+   */
   public static void updateOldGrid(){
     for(int i = 0; i < 8; i++)
       for(int j = 0; j < 8; j++)
         oldGrid[i][j] = grid[i][j];
   }
   
+  /* Método para el modo básico. */
   public static void basic(){
     genGrid();
     while(winner() == 0){
@@ -346,6 +378,10 @@ class Juego {
     else if(win == 3)
       System.out.println("\nLa partida es tablas");
   }
+  
+  /* Método para el modo intermedio.
+   * Incluye toda la funcionalidad del modo básico.
+   */
   public static void intermediate(){
     genGrid();
     while(winner() == 0){
@@ -369,14 +405,12 @@ class Juego {
       System.out.println("\nLa partida es tablas");
   }
 
+  /* Método para el modo avanzado.
+   * Incluye la funcionalidad de los anteriores modos,
+   * más la capacidad de soplar.
+   */
   public static void advanced(){
-    //genGrid();
-    for(int i = 0; i < 8; i++)
-      for(int j = 0; j < 8; j++)
-        grid[i][j] = '·';
-    grid[1][1] = 'b';
-    grid[3][3] = 'n';
-    grid[6][2] = 'n';
+    genGrid();
     while(winner() == 0){
       printBoard();
       updateOldGrid();
@@ -402,6 +436,10 @@ class Juego {
       System.out.println("\nLa partida es tablas");
   }
 
+  /* Método principal.
+   * Llama a los métodos de cada modo para
+   * entrar en el juego
+   */
   public static void main(String[] args) {
     System.out.println("¡Bienvenido! Elija el modo en el que quiere jugar:");
     boolean stop;                   //Puede usarse solo una variable
