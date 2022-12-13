@@ -6,6 +6,7 @@ class Juego {
   public static int[] blowMove;                                 //Secuencia de movimientos solo para el modo avanzado
   public static char[][] oldGrid = new char[8][8];              //Tablero del movimiento anterior. Modo avanzado.
   public static String eatMove = new String();                                 //String para crear el movimiento para soplar
+  public static int tieCount;
 
   public static void checkForMore(int player, int[] position){
     String possibleEat= (player == 1 ? "·n" : "·b");
@@ -102,6 +103,8 @@ class Juego {
     noBlackMoves = (firstRow.indexOf('n') != -1 && mediumRows.indexOf('n') == -1 && mediumRows.indexOf('b') == -1 && lastRow.indexOf('n') == -1 && board.indexOf('N') == -1);
     noWhiteMoves = (lastRow.indexOf('b') != -1 && mediumRows.indexOf('n') == -1 && mediumRows.indexOf('b') == -1 && firstRow.indexOf('b') == -1 && board.indexOf('B') == -1);
     if(noBlackMoves && noWhiteMoves)
+      return 3;
+    if(tieCount == 2)                 //Más de 2 veces sin movimientos posibles
       return 3;
     /* Para el resto de modos */
     boolean noWhitePieces = true, noBlackPieces = true;
@@ -207,40 +210,33 @@ class Juego {
   }
 
   public static void movWhite(){
-    if(winner() != 0)
-      return;
-    System.out.println("\nBlancas mueven: ");
+    int localTieCount = 0;                   //Contador local para tablas
     int x, y, nX, nY, xLen, yLen;
     boolean legal;                    //Para salir del bucle
     int[] mov;
     do{
+      if(winner() != 0)
+        return;
+      System.out.println("\nBlancas mueven: ");
       legal = true;
       mov = scanMov();          //Introducir movimiento por teclado
       int len = mov.length;           //Longitud
       x = mov[0]; y = mov[1]; nX = mov[len - 2]; nY = mov[len - 1];     //Más fácil con variables
       yLen = (int) Math.abs(nY - y); xLen = nX - x;     //Helper variables
       if(grid[x - 1][y - 1] != 'b' && grid[x - 1][y - 1] != 'B'){   //Si no hay pieza blanca
-        System.out.println("No hay pieza blanca en la casilla seleccionada. Volver a introducir: ");
+        System.out.println("No hay pieza blanca en la casilla seleccionada.");
         legal = false;
       }
-      //else if(grid[x - 1][y - 1] == 'b' && (yLen != 1 || xLen != 1)){      //Movimiento ilegal para peones
-        //System.out.println("Movimiento ilegal. Volver a introducir:");
-        //legal = false;
-      //}
       else if(grid[nX - 1][nY - 1] == 'n' || grid[nX - 1][nY - 1] == 'N' ||
        grid[nX - 1][nY - 1] == 'b' || grid[nX - 1][nY - 1] == 'B'){   //Si hay pieza en la casilla final
-        System.out.println("Movimiento ilegal: pieza en el camino. Volver a introducir: ");
+        System.out.println("Movimiento ilegal: pieza en el camino.");
+        tieCount = ++localTieCount;                             //Incrementar cuenta para tablas
         legal = false;
       }
-      //else if(len == 4)                        //Movimientos normales
-        //if(xLen != 1 && yLen != 1){
-          //System.out.println("Movimiento ilegal. Volver a introducir");
-          //legal = false;
-        //}
       else if(xLen != 1 || yLen != 1){                              //Comer
         legal = validateCoordinates(mov);
         if(!legal)
-          System.out.println("Movimiento ilegal. Volver a introducir: ");
+          System.out.println("Movimiento ilegal.");
       }
     } while(!legal);
     grid[nX - 1][nY - 1] = (grid[x-1][y-1] == 'b' ? 'b' : 'B');
@@ -251,36 +247,29 @@ class Juego {
   }
 
   public static void movBlack(){
-    if(winner() != 0)
-      return;
-    System.out.println("\nNegras mueven: ");
+    int localTieCount = 0;            //Contador local para tablas
     int x, y, nX, nY, xLen, yLen;
     boolean legal;                    //Para salir del bucle
     int[] mov;
     do{
+      if(winner() != 0)
+        return;
+      System.out.println("\nNegras mueven: ");
       legal = true;
       mov = scanMov();                //Movimiento introducido por teclado
       int len = mov.length;
       x = mov[0]; y = mov[1]; nX = mov[len - 2]; nY = mov[len - 1];     //Más fácil con variables
       yLen = (int) Math.abs(nY - y); xLen = x - nX;     //Helper variables
       if(grid[x - 1][y - 1] != 'n' && grid[x - 1][y - 1] != 'N'){   //Si no hay pieza negra
-        System.out.println("No hay pieza negra en la casilla seleccionada. Volver a introducir: ");
+        System.out.println("No hay pieza negra en la casilla seleccionada.");
         legal = false;
       }
-      //else if(grid[x - 1][y - 1] == 'n' && (yLen != 1 || xLen != -1)){           //Movimiento ilegal para peones
-        //System.out.println("Movimiento ilegal. Volver a introducir:");
-        //legal = false;
-      //}
       else if(grid[nX - 1][nY - 1] == 'n' || grid[nX - 1][nY - 1] == 'N' ||
        grid[nX - 1][nY - 1] == 'b' || grid[nX - 1][nY - 1] == 'B'){   //Si hay pieza en la casilla final
-        System.out.println("Movimiento ilegal: pieza en el camino. Volver a introducir: ");
+        System.out.println("Movimiento ilegal: pieza en el camino.");
+        tieCount = ++localTieCount;                     //Incrementar uno para tablas
         legal = false;
       }
-      //else if(len == 4)                        //Movimientos normales
-        //if(xLen != 1 && yLen != 1){
-          //System.out.println("Movimiento ilegal. Volver a introducir");
-          //legal = false;
-        //}
       else if(xLen != 1 || yLen != 1){
         legal = validateCoordinates(mov);
         if(!legal)
@@ -342,7 +331,13 @@ class Juego {
   }
   
   public static void basic(){
-    genGrid();
+    //genGrid();
+    for(int i = 0; i < 8 ; i++)
+      for(int j = 0; j < 8; j++)
+        grid[i][j] = '·';
+    grid[6][6] = 'b';
+    grid[7][7] = 'n';
+    grid[7][5] = 'n';
     while(winner() == 0){
       printBoard();
       movWhite();
