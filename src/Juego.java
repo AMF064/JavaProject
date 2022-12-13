@@ -331,13 +331,7 @@ class Juego {
   }
   
   public static void basic(){
-    //genGrid();
-    for(int i = 0; i < 8 ; i++)
-      for(int j = 0; j < 8; j++)
-        grid[i][j] = '·';
-    grid[6][6] = 'b';
-    grid[7][7] = 'n';
-    grid[7][5] = 'n';
+    genGrid();
     while(winner() == 0){
       printBoard();
       movWhite();
