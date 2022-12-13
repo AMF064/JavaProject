@@ -10,7 +10,8 @@ class Juego {
   public static void checkForMore(int player, int[] position){
     String possibleEat= (player == 1 ? "·n" : "·b");
     int x = position[0], y = position[1];
-    if(0 < x + 2 && x + 2 < 7 && 0 < y + 2 && y + 2 < 7){
+    int maxX = (player == 1 ? x+2 : x-2);
+    if(0 < maxX && maxX < 7 && 0 < y + 2 && y + 2 < 7){
       char[] left = {oldGrid[x+2][y-2], oldGrid[x+1][y-1]};
       char[] right = {oldGrid[x+2][y+2], oldGrid[x+1][y+1]};
       String checkForFoodLeft = String.valueOf(left);   //Diagonal de 3 piezas hacia la izquierda
