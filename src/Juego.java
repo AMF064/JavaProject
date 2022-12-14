@@ -166,7 +166,7 @@ class Juego {
         if(xLenN != 2 || yLen != 2){            //Saltos de 2 casillas
           if(grid[a[0]-1][a[1]-1] == 'n' && (xLenN != -1 || yLen != 1))
             return false;
-          else if(grid[a[0]-1][a[1]-1] == 'n' && (xLenN == 1 || yLen == 1))
+          else if(grid[a[0]-1][a[1]-1] == 'n' && (xLenN == 1 && yLen == 1))
             return true;
           else if(grid[a[0]-1][a[1]-1] == 'N')
             return true;
