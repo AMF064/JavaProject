@@ -154,8 +154,6 @@ class Juego {
         if(xLenB != 2 || yLen != 2){            //Saltos de 2 casillas
           if(grid[a[0]-1][a[1]-1] == 'b' && (xLenB != 1 || yLen != 1))        //Movimiento ilegal de peón
             return false;
-          //else if(grid[a[0]-1][a[1]-1] == 'b' && (xLenB == 1 || yLen == 1))   //Movimiento legal de peón
-            //return true;
           else if(grid[a[0]-1][a[1]-1] == 'B')                                //Movimiento legal de dama
             return true;
         }
