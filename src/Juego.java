@@ -222,29 +222,34 @@ class Juego {
     return out;
   }
 
-  /* Método para el movimiento de las piezas blancas. Puede unirse con el método de las
-   * piezas negras en un único método para mover.
+  /* Método de movimiento
+   * Para piezas blancas y negras.
    */
-  public static void movWhite(){
+  public static void move(int player){
     int localTieCount = 0;                   //Contador local para tablas
     int x, y, nX, nY, xLen, yLen;
     boolean legal;                    //Para salir del bucle
+    char piece = (player == 1 ? 'b' : 'n');
+    char queen = (player == 1  ? 'B' : 'N');
     int[] mov;
     do{
       if(winner() != 0)
         return;
-      System.out.println("\nBlancas mueven: ");
+      if(player == 1)
+        System.out.println("\nBlancas mueven: ");
+      else
+        System.out.println("\nMueven negras: ");
       legal = true;
       mov = scanMov();          //Introducir movimiento por teclado
       int len = mov.length;           //Longitud
       x = mov[0]; y = mov[1]; nX = mov[len - 2]; nY = mov[len - 1];     //Más fácil con variables
-      yLen = (int) Math.abs(nY - y); xLen = nX - x;     //Helper variables
-      if(grid[x - 1][y - 1] != 'b' && grid[x - 1][y - 1] != 'B'){   //Si no hay pieza blanca
+      yLen = (int) Math.abs(nY - y); 
+      xLen = (player == 1? nX - x : x - nX);     //Helper variables
+      if(grid[x - 1][y - 1] != piece && grid[x - 1][y - 1] != queen){   //Si no hay pieza blanca
         System.out.println("No hay pieza blanca en la casilla seleccionada.");
         legal = false;
       }
-      else if(grid[nX - 1][nY - 1] == 'n' || grid[nX - 1][nY - 1] == 'N' ||
-       grid[nX - 1][nY - 1] == 'b' || grid[nX - 1][nY - 1] == 'B'){   //Si hay pieza en la casilla final
+      else if(grid[nX - 1][nY - 1] != '·'){   //Si hay pieza en la casilla final
         System.out.println("Movimiento ilegal: pieza en el camino.");
         tieCount = ++localTieCount;                             //Incrementar cuenta para tablas
         legal = false;
@@ -255,53 +260,13 @@ class Juego {
           System.out.println("Movimiento ilegal.");
       }
     } while(!legal);
-    grid[nX - 1][nY - 1] = (grid[x-1][y-1] == 'b' ? 'b' : 'B');
+    grid[nX - 1][nY - 1] = (grid[x-1][y-1] == piece ? piece : queen);
     grid[x - 1][y - 1] = '·';
     if(xLen != 1 && yLen != 1)
       Eat(mov);
     blowMove = mov;
   }
 
-  /* Método de movimiento de las piezas negras.
-   * Puede fusionarse con el método de las piezas blancas
-   * en un solo método.
-   */
-  public static void movBlack(){
-    int localTieCount = 0;            //Contador local para tablas
-    int x, y, nX, nY, xLen, yLen;
-    boolean legal;                    //Para salir del bucle
-    int[] mov;
-    do{
-      if(winner() != 0)
-        return;
-      System.out.println("\nNegras mueven: ");
-      legal = true;
-      mov = scanMov();                //Movimiento introducido por teclado
-      int len = mov.length;
-      x = mov[0]; y = mov[1]; nX = mov[len - 2]; nY = mov[len - 1];     //Más fácil con variables
-      yLen = (int) Math.abs(nY - y); xLen = x - nX;     //Helper variables
-      if(grid[x - 1][y - 1] != 'n' && grid[x - 1][y - 1] != 'N'){   //Si no hay pieza negra
-        System.out.println("No hay pieza negra en la casilla seleccionada.");
-        legal = false;
-      }
-      else if(grid[nX - 1][nY - 1] == 'n' || grid[nX - 1][nY - 1] == 'N' ||
-       grid[nX - 1][nY - 1] == 'b' || grid[nX - 1][nY - 1] == 'B'){   //Si hay pieza en la casilla final
-        System.out.println("Movimiento ilegal: pieza en el camino.");
-        tieCount = ++localTieCount;                     //Incrementar uno para tablas
-        legal = false;
-      }
-      else if(xLen != 1 || yLen != 1){
-        legal = validateCoordinates(mov);
-        if(!legal)
-          System.out.println("Movimiento ilegal. Volver a introducir: ");
-      }
-    } while(!legal);
-    grid[nX - 1][nY - 1] = (grid[x-1][y-1] == 'n' ? 'n' : 'N');
-    grid[x - 1][y - 1] = '·';
-    if(xLen != 1 && yLen != 1)
-      Eat(mov);
-    blowMove = mov;
-  }
   
   /* Método para rellenar el tablero.
    * Rellena la variable pública grid.
@@ -365,9 +330,9 @@ class Juego {
     genGrid();
     while(winner() == 0){
       printBoard();
-      movWhite();
+      move(1);
       printBoard();
-      movBlack();
+      move(2);
     }
     int win = winner();
     if(win == 1)
@@ -385,12 +350,12 @@ class Juego {
     genGrid();
     while(winner() == 0){
       printBoard();
-      movWhite();
+      move(1);
       String lastRow = String.valueOf(grid[7]);
       if(lastRow.indexOf('b') != -1)              //Coronar pieza blanca
         grid[7][lastRow.indexOf('b')] = 'B';
       printBoard();
-      movBlack();
+      move(2);
       String firstRow = String.valueOf(grid[0]);
       if(firstRow.indexOf('n') != -1)             //Coronar pieza negra
         grid[0][firstRow.indexOf('n')] = 'N';
@@ -409,23 +374,18 @@ class Juego {
    * más la capacidad de soplar.
    */
   public static void advanced(){
-    //genGrid();
-    for(int i = 0; i < 8; i++)
-      for(int j = 0; j < 8; j++)
-        grid[i][j] = '·';
-    grid[3][3] = 'b';
-    grid[5][3] = 'n';
+    genGrid();
     while(winner() == 0){
       printBoard();
       updateOldGrid();
-      movWhite();
+      move(1);
       blow(1, blowMove);                      //Buscar soplos
       String lastRow = String.valueOf(grid[7]);
       if(lastRow.indexOf('b') != -1)              //Coronar pieza blanca
         grid[7][lastRow.indexOf('b')] = 'B';
       printBoard();
       updateOldGrid();
-      movBlack();
+      move(2);
       blow(2, blowMove);                      //Buscar soplos
       String firstRow = String.valueOf(grid[0]);
       if(firstRow.indexOf('n') != -1)             //Coronar pieza negra
