@@ -180,7 +180,7 @@ class Juego {
   /* Método para comer la pieza o las piezas que el jugador quería comer.
    * Está fuera de los otros métodos por legibilidad.
    */
-  public static void Eat(int[] mov){
+  public static void eat(int[] mov){
     int len = mov.length;
     for(int i = 1; i < len/2; i++){
       int x = mov[2*i-2], y = mov[2*i-1], nextX = mov[2*i], nextY = mov[2*i+1];       //Útil
@@ -244,7 +244,7 @@ class Juego {
       int len = mov.length;           //Longitud
       x = mov[0]; y = mov[1]; nX = mov[len - 2]; nY = mov[len - 1];     //Más fácil con variables
       yLen = (int) Math.abs(nY - y); 
-      xLen = (player == 1? nX - x : x - nX);     //Helper variables
+      xLen = (player == 1 ? nX - x : x - nX);     //Helper variables
       if(grid[x - 1][y - 1] != piece && grid[x - 1][y - 1] != queen){   //Si no hay pieza blanca
         System.out.println("No hay pieza blanca en la casilla seleccionada.");
         legal = false;
@@ -263,7 +263,7 @@ class Juego {
     grid[nX - 1][nY - 1] = (grid[x-1][y-1] == piece ? piece : queen);
     grid[x - 1][y - 1] = '·';
     if(xLen != 1 && yLen != 1)
-      Eat(mov);
+      eat(mov);
     blowMove = mov;
   }
 
