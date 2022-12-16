@@ -13,22 +13,23 @@ class Juego {
     String possibleEat= (player == 1 ? "·n" : "·b");
     int x = position[0], y = position[1];
     int maxX = (player == 1 ? x+2 : x-2);
-    if(0 < maxX && maxX < 7 && 0 < y + 2 && y + 2 < 7){
-      char[] left = {oldGrid[x+2][y-2], oldGrid[x+1][y-1]};
-      char[] right = {oldGrid[x+2][y+2], oldGrid[x+1][y+1]};
+    int nextMaxX = (player == 1 ? x+1 : x-1);
+    if(0 < maxX && maxX < 7 && 0 < y - 2 && y + 2 < 7){
+      char[] left = {oldGrid[maxX][y-2], oldGrid[nextMaxX][y-1]};
+      char[] right = {oldGrid[maxX][y+2], oldGrid[nextMaxX][y+1]};
       String checkForFoodLeft = String.valueOf(left);   //Diagonal de 3 piezas hacia la izquierda
       String checkForFoodRight = String.valueOf(right);  //Diagonal de 3 piezas hacia la derecha
       boolean matchLeft = checkForFoodLeft.equals(possibleEat);
       boolean matchRight = checkForFoodRight.equals(possibleEat);
       if(matchLeft){
-        int newX = x+2, newY = y-2;
+        int newX = maxX, newY = y-2;
         int[] newPosition = {newX, newY};                //Buscar en la posición 2 escaques en diagonal a la izquierda
         int newXToString = newX+1, newYToString = newY+1;   //Hay que sumar 1 para comparar con el movimiento
         eatMove += newXToString + "" + newYToString;
         checkForMore(player, newPosition);       
       }
       if(matchRight){
-        int newX = x+2, newY = y+2;
+        int newX = maxX, newY = y+2;
         int[] newPosition = {newX, newY};                 //Buscar en la posición 2 escaques en diagonal a la derecha
         int newXToString = newX+1, newYToString = newY+1;   //Hay que sumar 1 para comparar con el movimiento
         eatMove += newXToString + "" + newYToString;
@@ -408,7 +409,12 @@ class Juego {
    * más la capacidad de soplar.
    */
   public static void advanced(){
-    genGrid();
+    //genGrid();
+    for(int i = 0; i < 8; i++)
+      for(int j = 0; j < 8; j++)
+        grid[i][j] = '·';
+    grid[3][3] = 'b';
+    grid[5][3] = 'n';
     while(winner() == 0){
       printBoard();
       updateOldGrid();
